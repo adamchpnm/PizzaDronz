@@ -20,7 +20,20 @@
     <maven.compiler.release>18</maven.compiler.release>
   </properties>
 
+<!--  <repository>-->
+<!--    <id>project-common</id>-->
+<!--    <name>Project Common</name>-->
+<!--    <url>https://github.com/adamchpnm/mvn-repo/raw/master/</url>-->
+<!--  </repository>-->
+
+
+
   <dependencies>
+<!--    <dependency>-->
+<!--      <groupId>IlpDataObjects</groupId>-->
+<!--      <artifactId>IlpDataObjects</artifactId>-->
+<!--      <version>1.0</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
