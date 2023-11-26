@@ -1,8 +1,8 @@
 package uk.ac.ed.inf;
 
 import com.google.gson.Gson;
-import com.mapbox.geojson.*;
 import com.google.gson.GsonBuilder;
+import com.mapbox.geojson.*;
 import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
 import uk.ac.ed.inf.ilp.data.Restaurant;
@@ -10,18 +10,15 @@ import uk.ac.ed.inf.ilp.data.Restaurant;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 class flightpathMove {
-    private String orderNo;
-    private double fromLongitude;
-    private double fromLatitude;
-    private double angle;
-    private double toLongitude;
-    private double toLatitude;
+    private final String orderNo;
+    private final double fromLongitude;
+    private final double fromLatitude;
+    private final double angle;
+    private final double toLongitude;
+    private final double toLatitude;
 
 
     public flightpathMove(String orderNo, double fromLongitude, double fromLatitude, double angle, double toLongitude, double toLatitude) {
@@ -74,33 +71,21 @@ public class pathGEO {
         List<Point> dronePath = new ArrayList<>();
         route.forEach(e -> {
             Collections.reverse(e);
-            e.forEach(cell -> {
-                dronePath.add(Point.fromLngLat(cell.coords.lng(), cell.coords.lat()));
-
-            });
+            e.forEach(cell -> dronePath.add(Point.fromLngLat(cell.coords.lng(), cell.coords.lat())));
             Collections.reverse(e);
-            e.forEach(cell -> {
-                dronePath.add(Point.fromLngLat(cell.coords.lng(), cell.coords.lat()));
-            });
+            e.forEach(cell -> dronePath.add(Point.fromLngLat(cell.coords.lng(), cell.coords.lat())));
         });
 
         Geometry geometry = LineString.fromLngLats(dronePath);
         Feature feature = Feature.fromGeometry(geometry);
         FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
-        String geoJson = featureCollection.toJson();
-        return geoJson;
+        return featureCollection.toJson();
     }
 
     public static void main(List<String> OrderNums, List<Restaurant> visits, String BASEURL, String date) {
         List<List<Cell>> route = iterat(visits, BASEURL);
 
-
-//        Path resultfiles = Paths.get("resultFiles/");
-//        try {
-//            Files.createDirectory(resultfiles);
-//        } catch (IOException ignored) {
-//            System.out.println("Directory already exists");
-//        }
+    //Directory will already exist from orderJSON
 
         String flightFileName = "flightpath-"+date+".json";
         List<flightpathMove> flights = flightFile(OrderNums,route);
@@ -109,7 +94,7 @@ public class pathGEO {
             Gson gson = new GsonBuilder().create();
             gson.toJson(flights, writer);
         } catch (IOException e) {
-            System.out.println("Unable to write flight");;
+            System.out.println("Unable to write flight");
         }
 
         String droneFileName = "drone-"+date+".geojson";
@@ -118,7 +103,7 @@ public class pathGEO {
 //            System.out.println("Writing");
             writer.write(droneJSON);
         } catch (IOException e) {
-            System.out.println("Unable to write drone");;
+            System.out.println("Unable to write drone");
         }
     }
 
@@ -139,6 +124,7 @@ public class pathGEO {
         } else {
             LngLat restLoc = restrnt.location();
             NamedRegion[] NoFlyZones = new RESThandler(BASEURL).NoFlyZones();
+            NamedRegion Central = new RESThandler(BASEURL).Central();
             // Find the start and goal positions
             Cell start, goal;
             start = new Cell(restLoc);
@@ -150,7 +136,7 @@ public class pathGEO {
             AStar.closedSet = new HashSet<>();
 
             // Run A* algorithm to find the shortest path
-            if (!AStar.findShortestPath(NoFlyZones, start, goal)) {
+            if (!AStar.findShortestPath(NoFlyZones, start, goal, Central)) {
                 System.out.println("No path found!");
             }
 

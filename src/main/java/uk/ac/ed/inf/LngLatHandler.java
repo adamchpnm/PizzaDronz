@@ -53,8 +53,8 @@ public class LngLatHandler implements LngLatHandling {
         LngLat nextPosition = startPosition;
         //if angle is one of the valid angles, change position, otherwise it does not move
         if ((angle % 22.5) == 0){
-            double nextPositionLng = startPosition.lng();
-            double nextPositionLat = startPosition.lat();
+            double nextPositionLng;
+            double nextPositionLat;
             //use polar coordinates to move one step in the direction given
             nextPositionLng = startPosition.lng() + (SystemConstants.DRONE_MOVE_DISTANCE * Math.sin(Math.toRadians(angle)));
             nextPositionLat = startPosition.lat() + (SystemConstants.DRONE_MOVE_DISTANCE * Math.cos(Math.toRadians(angle)));

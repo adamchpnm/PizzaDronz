@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 class shortOrder{
-    private String orderNo;
-    private String orderStatus;
-    private String orderValidationCode;
-    private int costInPence;
+    private final String orderNo;
+    private final String orderStatus;
+    private final String orderValidationCode;
+    private final int costInPence;
 
     public shortOrder(Order order){
         this.orderNo = order.getOrderNo();
@@ -50,7 +50,7 @@ public class orderJSON {
             Gson gson = new GsonBuilder().create();
             gson.toJson(shortOrderList, writer);
         } catch (IOException e) {
-            System.out.println("Unable to write deliveries");;
+            System.out.println("Unable to write deliveries");
         }
 
     }

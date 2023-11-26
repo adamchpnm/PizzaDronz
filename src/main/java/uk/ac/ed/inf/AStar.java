@@ -54,7 +54,7 @@ public class AStar {
     static List<Cell> path;                 // resulting path
 
     // A* search algorithm
-    public static boolean findShortestPath(NamedRegion[] noFlyZones, Cell start, Cell goal) {
+    public static boolean findShortestPath(NamedRegion[] noFlyZones, Cell start, Cell goal, NamedRegion Central) {
 
         // Add start to the queue first
         openSet.add(start);
@@ -90,7 +90,7 @@ public class AStar {
                 Cell next = new Cell(nextCoords);
                 // Neighbour cell location
 
-                //CHECK NEIGHBOUR LOCATION IN RANGE? (MIGHT NOT NEED TO) AND CHECK IS NOT IN A NO-FLY ZONE (DO NEED TO)
+                //CHECK IS NOT IN A NO-FLY ZONE (DO NEED TO)
                 boolean noFly = false;
 
                 for (NamedRegion noFlyZone: noFlyZones){
@@ -98,6 +98,14 @@ public class AStar {
                         noFly = true;
                     }
                 }
+
+                //if currently in central on way back to appleton, can not go somewhere that is not
+                if (new LngLatHandler().isInRegion(current.coords,Central)){
+                    if (!(new LngLatHandler().isInRegion(nextCoords,Central))){
+                        noFly = true;
+                    }
+                }
+
                 if (!noFly  && !closedSet.contains(next)) {
 
                     // New movement is always 1 cost
