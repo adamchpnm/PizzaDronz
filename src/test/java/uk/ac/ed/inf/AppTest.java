@@ -1,20 +1,12 @@
 package uk.ac.ed.inf;
 
-import static org.junit.Assert.assertTrue;
+// Main function
+public class AppTest {
 
-import org.junit.Test;
-
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-{
-    /**
-     * Rigorous Test :-)
-     */
-    @Test
-    public void shouldAnswerWithTrue()
-    {
-        assertTrue( true );
+    public static void main(String[] args){
+        String BASEURL = "https://ilp-rest.azurewebsites.net";
+        String testDate = "2023-11-27";
+        String[] argus = {testDate,BASEURL};
+        App.main(argus);
     }
 }

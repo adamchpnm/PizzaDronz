@@ -20,7 +20,7 @@ public class RESThandler {
         this.url = url;
     }
 
-    public boolean isAlive(){
+    public String isAlive(){
 
         HttpClient client = HttpClient.newBuilder().build();
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(this.url + "/isAlive")).build();
@@ -31,11 +31,11 @@ public class RESThandler {
 
             Gson gson = new GsonBuilder().create();
 
-            return gson.fromJson(response.body(),boolean.class);
+            return String.valueOf(gson.fromJson(response.body(),boolean.class));
             
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+//            e.printStackTrace();
+            return "error";
         }
     }
 
@@ -50,7 +50,11 @@ public class RESThandler {
 
             return gson.fromJson(response.body(),Order[].class);
         } catch (Exception e) {
-            System.out.println("No orders on specified date");
+            if (!(date.matches("\\d{2}-\\d{2}"))){
+                System.err.println("Incorrect date format");
+            } else {
+                System.err.println("Orders on specified date not found");
+            }
             return null;
         }
     }

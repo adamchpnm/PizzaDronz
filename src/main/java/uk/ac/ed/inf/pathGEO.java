@@ -93,17 +93,18 @@ public class pathGEO {
 //            System.out.println("Writing");
             Gson gson = new GsonBuilder().create();
             gson.toJson(flights, writer);
+            System.out.println("Flightpath file written");
         } catch (IOException e) {
-            System.out.println("Unable to write flight");
+            System.err.println("Unable to write flight");
         }
 
         String droneFileName = "drone-"+date+".geojson";
         String droneJSON = droneFile(route);
         try (Writer writer = new FileWriter("resultFiles/"+droneFileName)) {
-//            System.out.println("Writing");
             writer.write(droneJSON);
+            System.out.println("Drone file written");
         } catch (IOException e) {
-            System.out.println("Unable to write drone");
+            System.err.println("Unable to write drone");
         }
     }
 
@@ -137,7 +138,7 @@ public class pathGEO {
 
             // Run A* algorithm to find the shortest path
             if (!AStar.findShortestPath(NoFlyZones, start, goal, Central)) {
-                System.out.println("No path found!");
+                System.err.println("No path found!");
             }
 
             visitedList.add(restrnt);

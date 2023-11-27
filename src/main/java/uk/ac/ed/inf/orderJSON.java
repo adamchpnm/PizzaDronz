@@ -7,9 +7,6 @@ import uk.ac.ed.inf.ilp.data.Order;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,14 +25,7 @@ class shortOrder{
 }
 
 public class orderJSON {
-    public static void main(Order[] orders,String date){
-        Path resultfiles = Paths.get("resultFiles/");
-        try {
-            Files.createDirectory(resultfiles);
-        } catch (IOException ignored) {
-            System.out.println("Directory already exists");
-        }
-
+    public static void main(List<Order> orders,String date){
         String deliveriesFileName = "deliveries-"+date+".json";
 
 
@@ -49,8 +39,9 @@ public class orderJSON {
 //            System.out.println("Writing");
             Gson gson = new GsonBuilder().create();
             gson.toJson(shortOrderList, writer);
+            System.out.println("Delivery file written");
         } catch (IOException e) {
-            System.out.println("Unable to write deliveries");
+            System.err.println("Unable to write deliveries");
         }
 
     }

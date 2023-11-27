@@ -26,12 +26,6 @@ public class LngLatHandler implements LngLatHandling {
         return distanceTo(startPosition, otherPosition) <= SystemConstants.DRONE_IS_CLOSE_DISTANCE;
     }
 
-//    @Override
-//    public boolean isInCentralArea(LngLat point, NamedRegion centralArea) {
-    // don't think this bit needs doing as centralArea validation done in super interface
-//        return LngLatHandling.super.isInCentralArea(point, centralArea);
-//    }
-
     @Override
     public boolean isInRegion(LngLat position, NamedRegion region) {
         //use ray-tracing algorithm to see if within region

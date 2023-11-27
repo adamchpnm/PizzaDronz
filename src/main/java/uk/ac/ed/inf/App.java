@@ -15,8 +15,10 @@ public class App
         String BASEURL = args[1];
         String date = args[0];
 
-        if (!(new RESThandler(BASEURL).isAlive())){
-            System.out.println("Website is not currently alive");
+        if (new RESThandler(BASEURL).isAlive().equals("false")){
+            System.err.println("Website is not currently alive");
+        } else if (new RESThandler(BASEURL).isAlive().equals("error")){
+            System.err.println("Error with URL input");
         } else {
 
 
@@ -25,23 +27,31 @@ public class App
 
             Restaurant[] restrnts = new RESThandler(BASEURL).restaurants();
             Order[] orderList = new RESThandler(BASEURL).Orders(date);
-            if (orderList != null) {
-                orderJSON.main(orderList, date);
-                for (Order order : orderList) {
-                    Order validatedOrder =
-                            new OrderValidator().validateOrder(order, restrnts);
-                    if (validatedOrder != null) {
-                        if (validatedOrder.getOrderStatus() == OrderStatus.VALID_BUT_NOT_DELIVERED) {
-                            orderNumValid.add(order.getOrderNo());
-                            restsToVisit.add(getRestrnt(restrnts, validatedOrder));
-                        }
+            List<Order> validatedList = new ArrayList<>();
 
-                        //create OrderJSON from input validatedOrder
-                    } else {
-                        System.out.println("no order validated");
+            if (orderList != null) {
+                if (orderList.length == 0) {
+                    System.err.println("No orders for date specified");
+                } else {
+                    createDir.main();
+                    for (Order order : orderList) {
+                        Order validatedOrder =
+                                new OrderValidator().validateOrder(order, restrnts);
+                        if (validatedOrder != null) {
+                            if (validatedOrder.getOrderStatus() == OrderStatus.VALID_BUT_NOT_DELIVERED) {
+                                orderNumValid.add(order.getOrderNo());
+                                restsToVisit.add(getRestrnt(restrnts, validatedOrder));
+                            }
+                            validatedList.add(validatedOrder);
+
+                            //create OrderJSON from input validatedOrder
+                        } else {
+                            System.err.println("no order validated");
+                        }
                     }
+                    orderJSON.main(validatedList, date);
+                    pathGEO.main(orderNumValid, restsToVisit, BASEURL, date);
                 }
-                pathGEO.main(orderNumValid, restsToVisit, BASEURL, date);
             }
         }
     }
