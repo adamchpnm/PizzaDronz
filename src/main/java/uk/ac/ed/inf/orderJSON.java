@@ -10,6 +10,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+// A class that matches the JSON format for the spec
 class shortOrder{
     private final String orderNo;
     private final String orderStatus;
@@ -26,17 +27,19 @@ class shortOrder{
 
 public class orderJSON {
     public static void main(List<Order> orders,String date){
-        String deliveriesFileName = "deliveries-"+date+".json";
 
+        //Define the path for the new JSON file
+        String deliveriesFileName = "deliveries-"+date+".json";
 
         List<shortOrder> shortOrderList = new ArrayList<>();
 
+        // For each order, create a new shortOrder instance to be added to the JSON
         for (Order order: orders) {
             shortOrderList.add(new shortOrder(order));
         }
 
+        // Build the new JSON file using the shortOrder class and write to relevant file
         try (Writer writer = new FileWriter("resultFiles/"+deliveriesFileName)) {
-//            System.out.println("Writing");
             Gson gson = new GsonBuilder().create();
             gson.toJson(shortOrderList, writer);
             System.out.println("Delivery file written");

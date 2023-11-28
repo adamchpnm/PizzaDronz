@@ -6,16 +6,16 @@ import uk.ac.ed.inf.ilp.data.NamedRegion;
 
 import java.util.*;
 
-// Cell class to help record status of grid
+// Cell class to help record status of coordinates and facing angle
 // Since we are using priority queue and hashset, implement some functions, e.g., hashCode, equals are needed
 
 class Cell {
-    LngLat coords;   //REPLACE WITH LATLNG DOUBLE,DOUBLE
-    double f, g, h;    // A* algorithm value parameters - REPLACE WITH DOUBLE?
+    LngLat coords;   // The position in LngLat coordinate form
+    double f, g, h;    // A* algorithm heuristic value parameters
     Cell parent;    // Parent record: come from
-    double angle;
+    double angle; // Angle to next node
 
-    public Cell(LngLat coords) { //REPLACE WITH LATLNGS
+    public Cell(LngLat coords) {
         this.coords = coords;
         parent = null;
         f = 0;
@@ -24,8 +24,8 @@ class Cell {
     }
 
     @Override
-    public int hashCode(){ //THINK THIS CAN STAY INT?
-        return Objects.hash(coords); //NOTE THAT ROW AND COL WILL BE DOUBLES
+    public int hashCode(){
+        return Objects.hash(coords);
     }
 
     @Override
@@ -45,8 +45,8 @@ class Cell {
 }
 
 public class AStar {
+    // Define the 16 possible directions of movement
     private static final double[] DIRS = {0.0, 22.5, 45.0, 67.5, 90.0, 112.5, 135.0, 157.5, 180.0, 202.5, 225.0, 247.5, 270.0, 292.5, 315.0, 337.5}; // REPLACE WITH 16 POSSIBLE NEXT MOVES FROM LAT-LNG-HANDLER
-    //private static final int[] DIRS = {0,90,180,270}; // REPLACE WITH 16 POSSIBLE NEXT MOVES FROM LAT-LNG-HANDLER
 
     // Global defined variables for the search
     static PriorityQueue<Cell> openSet;     // frontier
@@ -85,12 +85,13 @@ public class AStar {
             }
 
             // Search neighbors
-            for (double dir : DIRS) {    //LOOP THROUGH 16 ANGLES (N,NNE,NE,NEE,E,...,NW,NNW)
+            for (double dir : DIRS) {    //Loop through each direction of movement (N,NNE,NE,NEE,E,...,NW,NNW)
                 LngLat nextCoords = new LngLatHandler().nextPosition(current.coords, dir);
-                Cell next = new Cell(nextCoords);
-                // Neighbour cell location
 
-                //CHECK IS NOT IN A NO-FLY ZONE (DO NEED TO)
+                // Neighbour cell location
+                Cell next = new Cell(nextCoords);
+
+                // Check it is not going to enter a No-Fly zone
                 boolean noFly = false;
 
                 for (NamedRegion noFlyZone: noFlyZones){
@@ -99,13 +100,15 @@ public class AStar {
                     }
                 }
 
-                //if currently in central on way back to appleton, can not go somewhere that is not
+                // Check if currently in central area, and, if so, that it does not leave central
+                // As we find only the route Restaurant -> Appleton, this condition always applies
                 if (new LngLatHandler().isInRegion(current.coords,Central)){
                     if (!(new LngLatHandler().isInRegion(nextCoords,Central))){
                         noFly = true;
                     }
                 }
 
+                // If we have a valid move
                 if (!noFly  && !closedSet.contains(next)) {
 
                     // New movement is always 1 cost
