@@ -110,12 +110,16 @@ public class pathGEO {
     public static void main(List<String> OrderNums, List<Restaurant> visits, String BASEURL, String date) {
         List<List<Cell>> route = iterat(visits, BASEURL);
 
-    //Directory will already exist from orderJSON
+    //Directory will already exist from createDir
 
+        // Define the path for the new JSON file
         String flightFileName = "flightpath-"+date+".json";
+
+        // For each order, create a new flightpathMove instance to be added to the JSON
         List<flightpathMove> flights = flightFile(OrderNums,route);
-        try (Writer writer = new FileWriter("resultFiles/"+flightFileName)) {
-//            System.out.println("Writing");
+
+        // Build the new JSON file using the flightpathMove class and write to relevant file
+        try (Writer writer = new FileWriter("resultfiles/"+flightFileName)) {
             Gson gson = new GsonBuilder().create();
             gson.toJson(flights, writer);
             System.out.println("Flightpath file written");
@@ -123,9 +127,14 @@ public class pathGEO {
             System.err.println("Unable to write flight");
         }
 
+        // Define the path for the new JSON file
         String droneFileName = "drone-"+date+".geojson";
+
+        // Run droneFile to get a geoJSON string of the relevant feature collection
         String droneJSON = droneFile(route);
-        try (Writer writer = new FileWriter("resultFiles/"+droneFileName)) {
+
+        // Write the new geoJSON file to relevant file
+        try (Writer writer = new FileWriter("resultfiles/"+droneFileName)) {
             writer.write(droneJSON);
             System.out.println("Drone file written");
         } catch (IOException e) {
@@ -152,6 +161,7 @@ public class pathGEO {
             return toGoTo.get(index);
         } else {
 
+            // Define restaurant location and instantiate other variables
             LngLat restLoc = restrnt.location();
             NamedRegion[] NoFlyZones = new RESThandler(BASEURL).NoFlyZones();
             NamedRegion Central = new RESThandler(BASEURL).Central();

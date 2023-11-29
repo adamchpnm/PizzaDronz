@@ -9,7 +9,7 @@ public class createDir {
     public static void main(){
 
         // Define the name of the directory
-        Path resultfiles = Paths.get("resultFiles/");
+        Path resultfiles = Paths.get("resultfiles/");
 
         // Try and create the directory
         try {

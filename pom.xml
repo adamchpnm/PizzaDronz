@@ -51,15 +51,6 @@
       <artifactId>json</artifactId>
       <version>20230618</version>
     </dependency>
-
-<!--    <dependency>-->
-<!--      <groupId>IlpDataObjects</groupId>-->
-<!--      <artifactId>IlpDataObjects</artifactId>-->
-<!--      <scope>system</scope>-->
-<!--      <systemPath>PizzaDronz/lib/IlpDataObjects.jar</systemPath>-->
-<!--    </dependency>-->
-
-
   </dependencies>
 
 
