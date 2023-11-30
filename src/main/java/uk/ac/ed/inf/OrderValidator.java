@@ -123,7 +123,7 @@ public class OrderValidator implements OrderValidation {
 
         //if there are no errors raised, the order is valid and this is returned
         if (orderToValidate.getOrderValidationCode() == OrderValidationCode.NO_ERROR){
-            orderToValidate.setOrderStatus(OrderStatus.VALID_BUT_NOT_DELIVERED);
+            orderToValidate.setOrderStatus(OrderStatus.DELIVERED);
         } else {
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
         }

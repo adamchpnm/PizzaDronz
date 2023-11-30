@@ -40,7 +40,7 @@ public class orderJSON {
 
         // Build the new JSON file using the shortOrder class and write to relevant file
         try (Writer writer = new FileWriter("resultfiles/"+deliveriesFileName)) {
-            Gson gson = new GsonBuilder().create();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(shortOrderList, writer);
             System.out.println("Delivery file written");
         } catch (IOException e) {

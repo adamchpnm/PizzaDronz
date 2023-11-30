@@ -55,12 +55,20 @@ public class AStar {
 
     // A* search algorithm
     public static boolean findShortestPath(NamedRegion[] noFlyZones, Cell start, Cell goal, NamedRegion Central) {
+        long startTime = System.nanoTime();
 
         // Add start to the queue first
         openSet.add(start);
 
         // Once there is element in the queue, then keep running
         while (!openSet.isEmpty()) {
+
+            // If the fail-safe checks do not work and program runs for more than 30 secs...
+            if((System.nanoTime() - startTime)> 30000000000L){
+                // ...this ensures that the program returns NO PATH for this route
+                return false;
+            }
+
 
             // Get the cell with the smallest cost
             Cell current = openSet.poll();
@@ -70,6 +78,7 @@ public class AStar {
             closedSet.add(current);
 
             // Find the goal: early exit
+            assert current != null;
             boolean close = new LngLatHandler().isCloseTo(current.coords,goal.coords);
             if (close) {
 

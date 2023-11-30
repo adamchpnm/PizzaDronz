@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.mapbox.geojson.*;
 import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
+import uk.ac.ed.inf.ilp.data.Order;
 import uk.ac.ed.inf.ilp.data.Restaurant;
 
 import java.io.FileWriter;
@@ -37,43 +38,45 @@ public class pathGEO {
     public static LngLat apple = new LngLat(-3.186874, 55.944494); //SPECIFIED IN SPEC
     public static ArrayList<Restaurant> visitedList = new ArrayList<>();
 
-    public static List<flightpathMove> flightFile(List<String> orderNos, List<List<Cell>> route){
+    public static List<flightpathMove> flightFile(List<Order> orders, List<List<Cell>> route){
         // Make use of the list of paths of restaurant to Appleton
         List<flightpathMove> toReturn = new ArrayList<>();
         final int[] count = {-1};
 
         // Loop through each path in the list
         route.forEach(path -> {
-            count[0]++;
-            final int[] iter1 = {0};
-            final int[] iter2 = {0};
-            // Reverse the path (so that it starts by going Appleton -> restaurant)
-            Collections.reverse(path);
-            path.forEach(cell -> {
-                try {
-                    // For each cell in the path, create a new flightPathMove
-                    toReturn.add(new flightpathMove(orderNos.get(count[0]),cell.coords.lng(),cell.coords.lat(), ((180-cell.angle)%360), path.get(iter1[0] +1).coords.lng(),path.get(iter1[0] +1).coords.lat()));
-                    // The angles are reversed as we initially reverse the path
-                    iter1[0]++;
-                } catch (Exception e){
-                    // The path has reached the restaurant
-                }
-            });
-            // Add in the hover step
-            toReturn.add(new flightpathMove(orderNos.get(count[0]),path.get(path.size()-1).coords.lng(),path.get(path.size()-1).coords.lng(),999,path.get(path.size()-1).coords.lng(),path.get(path.size()-1).coords.lng()));
-            // Reverse the path again (so that it now goes restaurant -> Appleton)
-            Collections.reverse(path);
-            path.forEach(cell -> {
-                try {
-                    toReturn.add(new flightpathMove(orderNos.get(count[0]),cell.coords.lng(),cell.coords.lat(), cell.angle, path.get(iter2[0] +1).coords.lng(),path.get(iter2[0] +1).coords.lat()));
-                    // The angles are back to normal as we are using the initial path
-                    iter2[0]++;
-                } catch (Exception e){
-                    //The path has reached Appleton
-                }
-            });
-            // Add in another hover step
-            toReturn.add(new flightpathMove(orderNos.get(count[0]),path.get(path.size()-1).coords.lng(),path.get(path.size()-1).coords.lng(),999,path.get(path.size()-1).coords.lng(),path.get(path.size()-1).coords.lng()));
+            if (path != null){
+                count[0]++;
+                final int[] iter1 = {0};
+                final int[] iter2 = {0};
+                // Reverse the path (so that it starts by going Appleton -> restaurant)
+                Collections.reverse(path);
+                path.forEach(cell -> {
+                    try {
+                        // For each cell in the path, create a new flightPathMove
+                        toReturn.add(new flightpathMove(orders.get(count[0]).getOrderNo(),cell.coords.lng(),cell.coords.lat(), ((180-cell.angle)%360), path.get(iter1[0] +1).coords.lng(),path.get(iter1[0] +1).coords.lat()));
+                        // The angles are reversed as we initially reverse the path
+                        iter1[0]++;
+                    } catch (Exception e){
+                        // The path has reached the restaurant
+                    }
+                });
+                // Add in the hover step
+                toReturn.add(new flightpathMove(orders.get(count[0]).getOrderNo(),path.get(path.size()-1).coords.lng(),path.get(path.size()-1).coords.lng(),999,path.get(path.size()-1).coords.lng(),path.get(path.size()-1).coords.lng()));
+                // Reverse the path again (so that it now goes restaurant -> Appleton)
+                Collections.reverse(path);
+                path.forEach(cell -> {
+                    try {
+                        toReturn.add(new flightpathMove(orders.get(count[0]).getOrderNo(),cell.coords.lng(),cell.coords.lat(), cell.angle, path.get(iter2[0] +1).coords.lng(),path.get(iter2[0] +1).coords.lat()));
+                        // The angles are back to normal as we are using the initial path
+                        iter2[0]++;
+                    } catch (Exception e){
+                        //The path has reached Appleton
+                    }
+                });
+                // Add in another hover step
+                toReturn.add(new flightpathMove(orders.get(count[0]).getOrderNo(),path.get(path.size()-1).coords.lng(),path.get(path.size()-1).coords.lng(),999,path.get(path.size()-1).coords.lng(),path.get(path.size()-1).coords.lng()));
+            }
         });
         return toReturn;
     }
@@ -83,17 +86,19 @@ public class pathGEO {
         List<Point> dronePath = new ArrayList<>();
         // Loop through each path in the list
         route.forEach(e -> {
-            // Reverse the path (so that it starts by going Appleton -> restaurant)
-            Collections.reverse(e);
+            if (e != null){
+                // Reverse the path (so that it starts by going Appleton -> restaurant)
+                Collections.reverse(e);
 
-            // Add a point to the list storing all points in order
-            e.forEach(cell -> dronePath.add(Point.fromLngLat(cell.coords.lng(), cell.coords.lat())));
+                // Add a point to the list storing all points in order
+                e.forEach(cell -> dronePath.add(Point.fromLngLat(cell.coords.lng(), cell.coords.lat())));
 
-            // Reverse the path again (so that it now goes restaurant -> Appleton)
-            Collections.reverse(e);
+                // Reverse the path again (so that it now goes restaurant -> Appleton)
+                Collections.reverse(e);
 
-            // And add each coordinate point again
-            e.forEach(cell -> dronePath.add(Point.fromLngLat(cell.coords.lng(), cell.coords.lat())));
+                // And add each coordinate point again
+                e.forEach(cell -> dronePath.add(Point.fromLngLat(cell.coords.lng(), cell.coords.lat())));
+            }
         });
 
         // Create a LineString feature from the points
@@ -107,20 +112,37 @@ public class pathGEO {
         return featureCollection.toJson();
     }
 
-    public static void main(List<String> OrderNums, List<Restaurant> visits, String BASEURL, String date) {
+    // A helper function that checks for any empty paths (unable to reach) and add to necessary list of bad orders
+    public static List<Order> ordersValidNoPath(List<List<Cell>> route, List<Order> orderNums){
+        List<Order> ordersValidNoPath = new ArrayList<>();
+
+        //For each path in the route, if it is empty, append corresponding order
+        for (int i = 0; i < route.size(); i++) {
+            if (Objects.equals(route.get(i), null)) {
+                ordersValidNoPath.add(orderNums.get(i));
+            }
+        }
+
+        return ordersValidNoPath;
+    }
+
+    public static List<Order> main(List<Order> Orders, List<Restaurant> visits, String BASEURL, String date) {
         List<List<Cell>> route = iterat(visits, BASEURL);
 
-    //Directory will already exist from createDir
+        // Any empty routes will need validation changing so append these to a list for processing in App
+        List<Order> ordersValidNoPath = ordersValidNoPath(route,Orders);
+
+        //Directory will already exist from createDir
 
         // Define the path for the new JSON file
         String flightFileName = "flightpath-"+date+".json";
 
         // For each order, create a new flightpathMove instance to be added to the JSON
-        List<flightpathMove> flights = flightFile(OrderNums,route);
+        List<flightpathMove> flights = flightFile(Orders,route);
 
         // Build the new JSON file using the flightpathMove class and write to relevant file
         try (Writer writer = new FileWriter("resultfiles/"+flightFileName)) {
-            Gson gson = new GsonBuilder().create();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(flights, writer);
             System.out.println("Flightpath file written");
         } catch (IOException e) {
@@ -140,6 +162,8 @@ public class pathGEO {
         } catch (IOException e) {
             System.err.println("Unable to write drone");
         }
+
+        return ordersValidNoPath;
     }
 
     public static List<List<Cell>> iterat(List<Restaurant> visits,String BASEURL){
@@ -177,10 +201,14 @@ public class pathGEO {
             AStar.closedSet = new HashSet<>();
 
             if (!AStar.findShortestPath(NoFlyZones, start, goal, Central)) {
-                System.err.println("No path found!");
+                System.err.println("No path found to: " + restrnt.name());
+                visitedList.add(restrnt);
+                return null;
             }
+
             // Update the cache array of visited restaurants
             visitedList.add(restrnt);
+
             return AStar.path;
         }
     }

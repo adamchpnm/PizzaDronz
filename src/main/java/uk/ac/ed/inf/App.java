@@ -24,7 +24,7 @@ public class App
         } else {
 
             // Lists to store valid order numbers and restaurants to visit
-            List<String> orderNumValid = new ArrayList<>();
+            List<Order> orderNumValid = new ArrayList<>();
             List<Restaurant> restsToVisit = new ArrayList<>();
 
             // Retrieve restaurants and orders from the REST API
@@ -52,8 +52,8 @@ public class App
                         // Check the order is non-null
                         if (validatedOrder != null) {
                             // Add valid orders to the list - these will affect flightpath
-                            if (validatedOrder.getOrderStatus() == OrderStatus.VALID_BUT_NOT_DELIVERED) {
-                                orderNumValid.add(order.getOrderNo());
+                            if (validatedOrder.getOrderStatus() == OrderStatus.DELIVERED) {
+                                orderNumValid.add(order);
                                 restsToVisit.add(getRestrnt(restrnts, validatedOrder));
                             }
                             // Add all orders to a list to add to Order JSON
@@ -62,10 +62,16 @@ public class App
                             System.err.println("no order validated");
                         }
                     }
+                    // Create Flightpath and Drone files from only the valid orders and corresponding restaurants
+                    List<Order> ordersValidNoPath = pathGEO.main(orderNumValid, restsToVisit, BASEURL, date);
+
+                    // Take any orders that are in the list of orders with no paths and update their validity status
+                    for (Order valid:ordersValidNoPath) {
+                        valid.setOrderStatus(OrderStatus.VALID_BUT_NOT_DELIVERED);
+                    }
+
                     // Create the Order JSON file from list of all validated orders
                     orderJSON.main(validatedList, date);
-                    // Create Flightpath and Drone files from only the valid orders and corresponding restaurants
-                    pathGEO.main(orderNumValid, restsToVisit, BASEURL, date);
                 }
             }
         }
